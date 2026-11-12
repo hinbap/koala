@@ -25,6 +25,7 @@
       "favicon": "./assets/sudoku-alarm/favicon.png"
     },
     "plugins": [
+      ["expo-image-picker", { "photosPermission": "Choose a photo for your Koala avatar.", "cameraPermission": false, "microphonePermission": false }],
       "expo-router",
       [
         "expo-splash-screen",

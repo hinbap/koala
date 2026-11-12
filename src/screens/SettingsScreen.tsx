@@ -16,6 +16,7 @@ import { ChoiceGroup } from '../components/ui/ChoiceGroup';
 import { Dropdown } from '../components/ui/Dropdown';
 import { Toggle } from '../components/ui/Toggle';
 import { ThemeCard } from '../components/ThemeCard';
+import { LocalUserProfile } from '../components/LocalUserProfile';
 
 const BACK_LABEL: Record<string, string> = { puzzle: 'Puzzle', wakeups: 'Wake-ups', alarms: 'Alarms' };
 
@@ -80,7 +81,8 @@ export function SettingsScreen() {
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <ScreenHeader title="Settings" backLabel={BACK_LABEL[from ?? 'alarms'] ?? 'Alarms'} onBack={goBack} />
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]}>
+      <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" automaticallyAdjustKeyboardInsets contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]}>
+        <LocalUserProfile />
         {(storageError || themeStorageError) && <ThemedText tone="alarm" accessibilityRole="alert">{storageError || themeStorageError}</ThemedText>}
         <View style={styles.section}>
           <ThemedText caption tone="muted" accessibilityRole="header">Appearance</ThemedText>
