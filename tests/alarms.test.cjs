@@ -10,8 +10,16 @@ test('12 AM and 12 PM map to midnight and noon', () => {
 });
 
 test('one-time alarms roll over to tomorrow after their scheduled time', () => {
-  assert.equal(A.minutesUntil(alarm(), new Date(2026, 10, 11, 6, 59, 30)), 1);
+  assert.equal(A.minutesUntil(alarm(), new Date(2026, 10, 11, 6, 59, 30)), 0);
+  assert.equal(A.minutesUntil(alarm(), new Date(2026, 10, 11, 6, 59)), 1);
   assert.equal(A.minutesUntil(alarm(), new Date(2026, 10, 11, 8)), 23 * 60);
+});
+
+test('countdowns round down to whole minutes and never overstate the time left', () => {
+  const now = new Date(2026, 10, 11, 6, 21, 15);
+  assert.equal(A.minutesUntil(alarm({ hour: 7 }), now), 38);
+  assert.equal(A.formatCountdown(A.minutesUntil(alarm({ hour: 7 }), now)), '38 min');
+  assert.equal(A.formatCountdown(0), 'under 1 min');
 });
 
 test('weekly alarms wrap to next week and disabled alarms are skipped', () => {

@@ -1,12 +1,15 @@
 import React from 'react';
+import { Slider } from '@expo/ui/community/slider';
+import Constants from 'expo-constants';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useThemeControls } from '../theme/ThemeProvider';
 import { Mode, THEME_ORDER, THEMES } from '../theme/themes';
 import { Settings, useStore } from '../state/AppStore';
+import { useAlarmNotifications } from '../state/AlarmNotifications';
 import { Level, LEVELS } from '../lib/alarms';
-import { AlarmSoundId, AlarmVolume, SOUND_OPTIONS, VOLUME_OPTIONS } from '../lib/sounds';
+import { ALARM_VOLUMES, AlarmSoundId, SOUND_OPTIONS } from '../lib/sounds';
 import { ThemedText } from '../components/ui/ThemedText';
 import { ScreenHeader } from '../components/ui/ScreenHeader';
 import { ChoiceGroup } from '../components/ui/ChoiceGroup';
@@ -45,17 +48,21 @@ function Row({ label, sub, right, below }: { label: string; sub?: string; right?
 export function SettingsScreen() {
   const t = useTheme();
   const insets = useSafeAreaInsets();
-  const { themeId, setThemeId, mode, setMode } = useThemeControls();
-  const { settings, updateSettings } = useStore();
+  const { themeId, setThemeId, mode, setMode, storageError: themeStorageError } = useThemeControls();
+  const { settings, updateSettings, alarmActive, storageError } = useStore();
+  const notifications = useAlarmNotifications();
+  const matchedVolumeIndex = ALARM_VOLUMES.findIndex((volume) => volume.value === settings.alarmVolume);
+  const volumeIndex = matchedVolumeIndex < 0 ? ALARM_VOLUMES.length - 1 : matchedVolumeIndex;
+  const selectedVolume = ALARM_VOLUMES[volumeIndex];
 
   const { from } = useLocalSearchParams<{ from?: string }>();
   const goBack = () => router.canGoBack() ? router.back() : router.replace('/');
 
-  const toggleRow = (key: keyof Settings, label: string, sub?: string) => (
+  const toggleRow = (key: keyof Settings, label: string, sub?: string, disabled = false) => (
     <Row
       label={label}
       sub={sub}
-      right={<Toggle value={settings[key] as boolean} onChange={(v) => updateSettings({ [key]: v } as Partial<Settings>)} label={label} />}
+      right={<Toggle value={settings[key] as boolean} onChange={(v) => updateSettings({ [key]: v } as Partial<Settings>)} label={label} disabled={disabled} />}
     />
   );
 
@@ -74,6 +81,7 @@ export function SettingsScreen() {
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <ScreenHeader title="Settings" backLabel={BACK_LABEL[from ?? 'alarms'] ?? 'Alarms'} onBack={goBack} />
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 32 }]}>
+        {(storageError || themeStorageError) && <ThemedText tone="alarm" accessibilityRole="alert">{storageError || themeStorageError}</ThemedText>}
         <View style={styles.section}>
           <ThemedText caption tone="muted" accessibilityRole="header">Appearance</ThemedText>
           <ScrollView
@@ -118,6 +126,7 @@ export function SettingsScreen() {
           />
           <Row
             label="Hints per puzzle"
+            sub="Applies to the next puzzle you start."
             right={
               <View style={styles.stepper} accessibilityLabel={`Hints per puzzle, ${settings.hintsPerPuzzle}`}>
                 {stepButton('Fewer hints', -1, '−')}
@@ -130,20 +139,44 @@ export function SettingsScreen() {
         </Section>
 
         <Section title="Wake-up">
-          <Row label="Preview settings" sub="Vibration and backup alarms are not active yet." />
-          {toggleRow('volumeClimbsBack', 'Volume climbs back', 'If you stop solving for 30 seconds.')}
-          {toggleRow('overridePhoneVolume', 'Override phone volume', 'Ring even when the phone is on silent.')}
-          {toggleRow('vibrate', 'Vibrate')}
+          <Row label="Alarm notifications" sub={notifications.message} below={Platform.OS !== 'web' ? (
+            <Pressable accessibilityRole="button" disabled={notifications.busy} onPress={() => void notifications.enable()} style={[styles.permissionButton, { borderColor: t.line, borderRadius: t.def.radius }]}>
+              <ThemedText tone="accent">{notifications.busy ? 'Checking permissions…' : 'Enable / manage permissions'}</ThemedText>
+            </Pressable>
+          ) : undefined} />
+          {notifications.error && <ThemedText tone="alarm" accessibilityRole="alert">{notifications.error}</ThemedText>}
+          {alarmActive && <ThemedText size={14} tone="muted">Solve the ringing puzzle to change playback and safety settings.</ThemedText>}
+          {toggleRow('volumeClimbsBack', 'Volume climbs back', 'After a move, the sound softens. After 30 seconds without another move, it returns to your chosen volume.', alarmActive)}
+          {toggleRow('overridePhoneVolume', 'Play in silent mode', 'Allows in-app audio through the iOS silent switch. Does not change system volume or override Focus or notification settings.', alarmActive || Platform.OS !== 'ios')}
+          {toggleRow('vibrate', 'Vibrate', 'Vibrate while ringing in the mobile app. iOS notification vibration follows system settings.', alarmActive || Platform.OS === 'web')}
           <Row
             label="Alarm volume"
-            sub="Set here only. The ringing alarm cannot be turned up or down."
+            sub="In-app playback volume. Locked until the ringing puzzle is solved. Notification volume follows system settings."
+            right={<ThemedText tone="accent">{selectedVolume.label}</ThemedText>}
             below={
-              <ChoiceGroup<AlarmVolume>
-                label="Alarm volume"
-                value={settings.alarmVolume}
-                onChange={(alarmVolume) => updateSettings({ alarmVolume })}
-                options={VOLUME_OPTIONS}
-              />
+              <View>
+                <Slider
+                  disabled={alarmActive}
+                  accessibilityLabel={`Alarm volume, ${selectedVolume.label}`}
+                  minimumValue={0}
+                  maximumValue={ALARM_VOLUMES.length - 1}
+                  step={1}
+                  value={volumeIndex}
+                  onValueChange={(value) => {
+                    const index = Math.max(0, Math.min(ALARM_VOLUMES.length - 1, Math.round(value)));
+                    updateSettings({ alarmVolume: ALARM_VOLUMES[index].value });
+                  }}
+                  minimumTrackTintColor={t.accent}
+                  maximumTrackTintColor={t.line}
+                  thumbTintColor={t.accent}
+                  style={styles.volumeSlider}
+                />
+                <View style={styles.volumeLabels}>
+                  {ALARM_VOLUMES.map((volume) => (
+                    <ThemedText key={volume.value} size={12} tone="muted">{volume.label}</ThemedText>
+                  ))}
+                </View>
+              </View>
             }
           />
           <Dropdown<AlarmSoundId>
@@ -155,12 +188,12 @@ export function SettingsScreen() {
         </Section>
 
         <Section title="Safety net">
-          {toggleRow('backupAlarm', 'Backup alarm', 'Rings again if the app is closed before you solve it.')}
-          {toggleRow('lockWhileRinging', 'Lock while ringing', 'No editing or deleting until it’s solved.')}
+          {toggleRow('backupAlarm', 'Backup alarm', 'Once a puzzle starts ringing, repeat a notification every minute until solved, even after closing the app. Requires notification permission.', alarmActive || Platform.OS === 'web')}
+          {toggleRow('lockWhileRinging', 'Lock while ringing', 'Block leaving the puzzle and adding, editing, disabling, or deleting alarms until solved.', alarmActive)}
         </Section>
 
         <Section title="About">
-          <Row label="Version" right={<ThemedText tone="muted">1.0</ThemedText>} />
+          <Row label="Version" right={<ThemedText tone="muted">{Constants.expoConfig?.version ?? '1.0.0'}</ThemedText>} />
         </Section>
       </ScrollView>
     </View>
@@ -180,4 +213,7 @@ const styles = StyleSheet.create({
   stepper: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   step: { width: 44, height: 44, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   stepValue: { minWidth: 32, textAlign: 'center' },
+  volumeSlider: { width: '100%', minHeight: 44, margin: 0 },
+  volumeLabels: { flexDirection: 'row', justifyContent: 'space-between' },
+  permissionButton: { minHeight: 44, paddingHorizontal: 12, justifyContent: 'center', alignSelf: 'flex-start', borderWidth: 1 },
 });

@@ -41,7 +41,7 @@ export function AlarmEditorSheet({ draft, onCancel, onSave, onDelete }: Props) {
             </View>
 
             <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
-              <TimeWheel value={d} onChange={(v) => setD({ ...d, ...v })} />
+              <TimeWheel value={d} onChange={(patch) => setD((cur) => ({ ...cur, ...patch }))} />
 
               <View style={styles.group}>
                 <View style={styles.spread}>

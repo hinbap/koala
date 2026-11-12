@@ -14,10 +14,11 @@ interface Props {
   onEdit: () => void;
   onToggle: () => void;
   onDelete: () => void;
+  disabled?: boolean;
 }
 
 /** Alarm row: tap to edit, swipe left to reveal Delete. */
-export function SwipeableAlarmRow({ alarm, open, onOpenChange, onEdit, onToggle, onDelete }: Props) {
+export function SwipeableAlarmRow({ alarm, open, onOpenChange, onEdit, onToggle, onDelete, disabled = false }: Props) {
   const t = useTheme();
   const [x] = useState(() => new Animated.Value(0));
 
@@ -28,7 +29,7 @@ export function SwipeableAlarmRow({ alarm, open, onOpenChange, onEdit, onToggle,
   const pan = useMemo(
     () =>
       PanResponder.create({
-        onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 8 && Math.abs(g.dx) > Math.abs(g.dy),
+        onMoveShouldSetPanResponder: (_, g) => !disabled && Math.abs(g.dx) > 8 && Math.abs(g.dx) > Math.abs(g.dy),
         onPanResponderMove: (_, g) => {
           const base = open ? -REVEAL : 0;
           x.setValue(Math.max(-REVEAL - 50, Math.min(0, base + g.dx)));
@@ -43,7 +44,7 @@ export function SwipeableAlarmRow({ alarm, open, onOpenChange, onEdit, onToggle,
           Animated.spring(x, { toValue: open ? -REVEAL : 0, useNativeDriver: true }).start();
         },
       }),
-    [open, onOpenChange, x],
+    [open, onOpenChange, x, disabled],
   );
 
   const time = formatTime(alarm);
@@ -51,6 +52,7 @@ export function SwipeableAlarmRow({ alarm, open, onOpenChange, onEdit, onToggle,
     <View style={[styles.row, { backgroundColor: t.alarm, borderBottomColor: t.line }]}>
       <Pressable
         onPress={onDelete}
+        disabled={disabled}
         style={styles.delete}
         accessibilityRole="button"
         accessibilityLabel={`Delete ${time} ${alarm.meridiem} alarm`}
@@ -64,11 +66,13 @@ export function SwipeableAlarmRow({ alarm, open, onOpenChange, onEdit, onToggle,
       <Animated.View {...pan.panHandlers} style={[styles.front, { backgroundColor: t.paper, transform: [{ translateX: x }] }]}>
         <Pressable
           onPress={() => (open ? onOpenChange(false) : onEdit())}
+          disabled={disabled}
+          accessibilityState={{ disabled }}
           style={styles.body}
           accessibilityRole="button"
           accessibilityLabel={`Edit ${time} ${alarm.meridiem} alarm, ${alarm.label}`}
           accessibilityActions={[{ name: 'delete', label: 'Delete alarm' }]}
-          onAccessibilityAction={(e) => e.nativeEvent.actionName === 'delete' && onDelete()}
+          onAccessibilityAction={(e) => !disabled && e.nativeEvent.actionName === 'delete' && onDelete()}
         >
           <View style={styles.timeLine}>
             <ThemedText face="display" size={32} lineHeight={40} tone={alarm.on ? 'ink' : 'muted'}>
@@ -82,7 +86,7 @@ export function SwipeableAlarmRow({ alarm, open, onOpenChange, onEdit, onToggle,
             {`${alarm.label} · ${describeDays(alarm.days)} · Sudoku, ${alarm.level.toLowerCase()}`}
           </ThemedText>
         </Pressable>
-        <Toggle value={alarm.on} onChange={onToggle} label={`${alarm.on ? 'Turn off' : 'Turn on'} ${time} ${alarm.meridiem} alarm`} />
+        <Toggle value={alarm.on} onChange={onToggle} disabled={disabled} label={`${alarm.on ? 'Turn off' : 'Turn on'} ${time} ${alarm.meridiem} alarm`} />
       </Animated.View>
     </View>
   );

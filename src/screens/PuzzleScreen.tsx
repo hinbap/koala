@@ -18,7 +18,7 @@ export function PuzzleScreen() {
 	const t = useTheme();
 	const { mode, toggleMode } = useThemeControls();
 	const insets = useSafeAreaInsets();
-	const { puzzle, updatePuzzle, newGame, ringing, practicing, settings, endSession } = useStore();
+	const { puzzle, updatePuzzle, newGame, ringing, practicing, settings, endSession, alarmActive } = useStore();
 	const solved = Sudoku.isSolved(puzzle);
 	const clock = formatClock(puzzle.seconds);
 	const [showNewGame, setShowNewGame] = useState(false);
@@ -41,6 +41,7 @@ export function PuzzleScreen() {
 							<IconButton icon="stop" label="End sudoku" color={t.muted} onPress={endSession} />}
 					</ThemedText>
 					<View style={styles.navActions}>
+						{ringing && !settings.lockWhileRinging && <IconButton icon="chevron-left" label="Back to alarms; alarm keeps ringing" color={t.muted} onPress={() => router.navigate('/')} />}
 						<IconButton
 							icon={mode === 'dark' ? 'sun' : 'moon'}
 							label={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
@@ -54,10 +55,12 @@ export function PuzzleScreen() {
 				<View style={styles.statusRow}>
 					<Pressable
 						onPress={() => setShowNewGame(true)}
+						disabled={alarmActive}
+						accessibilityState={{ disabled: alarmActive }}
 						accessibilityRole="button"
 						style={[styles.newGame, { borderColor: t.line, borderRadius: t.def.radius }]}
 					>
-						<ThemedText weight={500} size={14} tone="muted">New game</ThemedText>
+						<ThemedText weight={500} size={14} tone="muted">{alarmActive ? 'Solve to stop' : 'New game'}</ThemedText>
 					</Pressable>
 					<View style={styles.gameStatus}>
 						<ThemedText caption tone="muted">{puzzle.level}</ThemedText>
@@ -113,7 +116,7 @@ export function PuzzleScreen() {
 					</Pressable>
 				</View>
 			)}
-			{showNewGame && (
+			{showNewGame && !alarmActive && (
 				<DifficultySheet
 					title="New game"
 					description="Starting a new game replaces your current puzzle."

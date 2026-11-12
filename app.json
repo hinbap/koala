@@ -11,6 +11,7 @@
       "bundleIdentifier": "com.salbap.koala"
     },
     "android": {
+      "permissions": ["android.permission.SCHEDULE_EXACT_ALARM", "android.permission.VIBRATE"],
       "adaptiveIcon": {
         "backgroundColor": "#131312",
         "foregroundImage": "./assets/sudoku-alarm/android-icon-foreground.png",
@@ -33,7 +34,8 @@
           "imageWidth": 76
         }
       ],
-      "expo-audio"
+      "expo-audio",
+      ["expo-notifications", { "sounds": ["./assets/sounds/nuclear-notification.wav"] }]
     ],
     "experiments": {
       "typedRoutes": true,

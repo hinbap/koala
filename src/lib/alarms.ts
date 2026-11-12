@@ -14,6 +14,8 @@ export interface Alarm {
   level: Level;
   sound: AlarmSoundId;
   on: boolean;
+  /** Absolute firing time for an enabled one-time alarm, preserved across restarts. */
+  oneTimeAt?: number;
 }
 
 export const LEVELS: Level[] = ['Easy', 'Medium', 'Hard'];
@@ -51,9 +53,10 @@ export function describeDays(days: boolean[]): string {
   return out.join(', ');
 }
 
-/** Minutes from `now` until the alarm next rings, or null if it never will. */
-export function minutesUntil(a: Alarm, now: Date): number | null {
+/** Milliseconds from `now` until the alarm next rings, or null if it never will. */
+export function msUntil(a: Alarm, now: Date): number | null {
   const once = !a.days.some(Boolean);
+  if (once && a.oneTimeAt !== undefined) return Math.max(0, a.oneTimeAt - now.getTime());
   for (let k = 0; k <= 7; k++) {
     // Local calendar dates account for 23/25-hour days at DST boundaries.
     const candidate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + k);
@@ -61,22 +64,30 @@ export function minutesUntil(a: Alarm, now: Date): number | null {
     const minutes = minutesOfDay(a);
     candidate.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0);
     const diff = candidate.getTime() - now.getTime();
-    if (diff > 0) return Math.ceil(diff / 60000);
+    if (diff > 0) return diff;
   }
   return null;
 }
 
+/** Whole minutes left, rounded down: 38 min 45 s shows as 38. */
+export function minutesUntil(a: Alarm, now: Date): number | null {
+  const ms = msUntil(a, now);
+  return ms === null ? null : Math.floor(ms / 60000);
+}
+
 export function nextAlarm(alarms: Alarm[], now: Date): { alarm: Alarm; minutes: number } | null {
-  let best: { alarm: Alarm; minutes: number } | null = null;
+  // Compare exact milliseconds, not the rounded minutes shown on screen.
+  let best: { alarm: Alarm; ms: number } | null = null;
   for (const a of alarms) {
     if (!a.on) continue;
-    const m = minutesUntil(a, now);
-    if (m !== null && (!best || m < best.minutes)) best = { alarm: a, minutes: m };
+    const ms = msUntil(a, now);
+    if (ms !== null && (!best || ms < best.ms)) best = { alarm: a, ms };
   }
-  return best;
+  return best && { alarm: best.alarm, minutes: Math.floor(best.ms / 60000) };
 }
 
 export function formatCountdown(minutes: number): string {
+  if (minutes < 1) return 'under 1 min';
   const h = Math.floor(minutes / 60);
   return `${h ? `${h} h ` : ''}${minutes % 60} min`;
 }

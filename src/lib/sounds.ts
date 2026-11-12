@@ -24,3 +24,8 @@ export const VOLUME_OPTIONS = ALARM_VOLUMES.map((v) => ({ value: v.value, label:
 export function alarmVolumeLevel(volume: AlarmVolume): number {
   return (ALARM_VOLUMES.find((v) => v.value === volume) ?? ALARM_VOLUMES[ALARM_VOLUMES.length - 1]).level;
 }
+
+/** Once the player is solving, the alarm drops to a murmur so they can think. */
+export const SOLVING_VOLUME_LEVEL = 0.05;
+/** With "Volume climbs back" on, this long without a move rings at full volume again. */
+export const IDLE_RING_MS = 30_000;

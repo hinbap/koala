@@ -6,9 +6,10 @@ interface Props {
   value: boolean;
   onChange: (next: boolean) => void;
   label: string;
+  disabled?: boolean;
 }
 
-export function Toggle({ value, onChange, label }: Props) {
+export function Toggle({ value, onChange, label, disabled = false }: Props) {
   const t = useTheme();
   const [x] = useState(() => new Animated.Value(value ? 1 : 0));
 
@@ -19,10 +20,11 @@ export function Toggle({ value, onChange, label }: Props) {
   return (
     <Pressable
       onPress={() => onChange(!value)}
+      disabled={disabled}
       accessibilityRole="switch"
-      accessibilityState={{ checked: value }}
+      accessibilityState={{ checked: value, disabled }}
       accessibilityLabel={label}
-      style={styles.hit}
+      style={[styles.hit, disabled && { opacity: 0.45 }]}
     >
       <Animated.View
         style={[styles.track, { backgroundColor: x.interpolate({ inputRange: [0, 1], outputRange: [t.fur, t.accent] }) }]}

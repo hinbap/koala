@@ -1,0 +1,13 @@
+I1112 11:35:58.434342   45075 load.go:31] Reloading schema and connectors...
+I1112 11:35:58.493819   45075 control.go:90] [projects/emulator/locations/emulator/services/koala 49f4] UpdateResources(): done
+Main schema: sources: schema/schema.gql [1992B] 
+Connector "example": sources: example/mutations.gql [1243B] example/queries.gql [1801B] 
+I1112 11:35:58.522856   45075 codegen.go:102] [connector "example" javascriptSdk] Generating sources into "/Users/doyeon/Projects/koala/src/dataconnect-generated"
+I1112 11:35:58.539195   45075 collector.go:107] schema extensions wrote into "/Users/doyeon/Projects/koala/dataconnect/.dataconnect/schema"
+Generated sources: main/input.gql [29309B] main/relation.gql [14318B] prelude.gql [94538B] main/query.gql [5099B] main/mutation.gql [13679B] main/implicit.gql [1261B] 
+I1112 11:35:58.542364   45075 collector.go:107] connector "example" javascriptSdk wrote into "/Users/doyeon/Projects/koala/src/dataconnect-generated"
+Generated sources: esm/index.esm.js [5348B] react/esm/package.json [17B] react/index.cjs.js [3439B] react/esm/index.esm.js [3269B] react/README.md [48281B] .guides/config.json [236B] index.cjs.js [5892B] .guides/usage.md [3489B] README.md [41217B] index.d.ts [8408B] esm/package.json [17B] package.json [853B] react/index.d.ts [3961B] react/package.json [460B] .guides/setup.md [1682B] 
+I1112 11:35:58.544311   45075 installsdk.go:86] Running command: /Users/doyeon/.local/bin/npm install file:src/dataconnect-generated
+I1112 11:36:03.246876   45075 load.go:109] Finished reloading
+I1112 11:36:03.255039   45075 dev.go:103] Listening on address (HTTP + gRPC): 127.0.0.1:50001
+I1112 11:36:03.568958   45075 engine.go:216] [projects/emulator/locations/emulator/services/koala 49f4] ExecuteGraphqlRead query IntrospectionQuery: succeeded. 

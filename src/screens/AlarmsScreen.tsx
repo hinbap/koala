@@ -4,6 +4,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../theme/ThemeProvider';
 import { useStore } from '../state/AppStore';
+import { useAlarmNotifications } from '../state/AlarmNotifications';
 import { formatCountdown, formatTime, minutesOfDay, nextAlarm } from '../lib/alarms';
 import { ThemedText } from '../components/ui/ThemedText';
 import { IconButton } from '../components/ui/IconButton';
@@ -16,7 +17,8 @@ import { DifficultySheet } from '../components/sudoku/DifficultySheet';
 export function AlarmsScreen() {
 	const t = useTheme();
 	const insets = useSafeAreaInsets();
-	const { alarms, settings, saveAlarm, deleteAlarm, toggleAlarm, ringing, startRinging, startPractice } = useStore();
+	const { alarms, settings, saveAlarm, deleteAlarm, toggleAlarm, ringing, startRinging, startPractice, alarmsLocked } = useStore();
+	const notifications = useAlarmNotifications();
 	const [draft, setDraft] = useState<AlarmDraft | null>(null);
 	const [openRow, setOpenRow] = useState<number | null>(null);
 	const [pickingLevel, setPickingLevel] = useState(false);
@@ -44,7 +46,7 @@ export function AlarmsScreen() {
 				<View style={styles.actions}>
 					<IconButton icon="grid" label="Wake-up history" color={t.ink} onPress={() => router.navigate('/wakeups')} />
 					<IconButton icon="gear" label="Settings" color={t.ink} onPress={() => router.navigate('/settings')} />
-					<IconButton icon="plus" label="Add alarm" color={t.accent} size={24} strokeWidth={1.6} onPress={() => { setOpenRow(null); setDraft(newDraft()); }} />
+					{!alarmsLocked && <IconButton icon="plus" label="Add alarm" color={t.accent} size={24} strokeWidth={1.6} onPress={() => { setOpenRow(null); setDraft(newDraft()); }} />}
 				</View>
 			</View>
 
@@ -69,13 +71,13 @@ export function AlarmsScreen() {
 						</ThemedText>
 					)}
 				</View>
-				<Pressable onPress={startRinging} accessibilityRole="button" accessibilityLabel="Wake the koala: test the alarm">
+				<Pressable onPress={() => startRinging()} accessibilityRole="button" accessibilityLabel="Wake the koala: test the alarm">
 					<SleepingKoala />
 				</Pressable>
 			</View>
 
 			<ThemedText size={12} tone="muted" style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
-				Demo mode · alarms are not scheduled.
+				{alarmsLocked ? 'Alarms are locked until you solve the ringing puzzle.' : notifications.error ?? notifications.message}
 			</ThemedText>
 
 			<ScrollView style={{ borderTopWidth: 1, borderTopColor: t.line }} contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}>
@@ -83,6 +85,7 @@ export function AlarmsScreen() {
 					<SwipeableAlarmRow
 						key={a.id}
 						alarm={a}
+						disabled={alarmsLocked}
 						open={openRow === a.id}
 						onOpenChange={(o) => setOpenRow(o ? a.id : null)}
 						onEdit={() => { setOpenRow(null); setDraft({ ...a, days: [...a.days] }); }}
@@ -111,7 +114,7 @@ export function AlarmsScreen() {
 				onStart={(level) => { setPickingLevel(false); startPractice(level); }}
 			/>}
 
-			{draft && <AlarmEditorSheet
+			{draft && !alarmsLocked && <AlarmEditorSheet
 				draft={draft}
 				onCancel={() => setDraft(null)}
 				onSave={(d) => { saveAlarm(d); setDraft(null); }}
