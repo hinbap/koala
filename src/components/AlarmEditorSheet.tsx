@@ -40,9 +40,11 @@ export function AlarmEditorSheet({ draft, onCancel, onSave, onDelete }: Props) {
               </Pressable>
             </View>
 
-            <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
+            <View style={styles.picker}>
               <TimeWheel value={d} onChange={(patch) => setD((cur) => ({ ...cur, ...patch }))} />
+            </View>
 
+            <ScrollView style={styles.form} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={styles.content}>
               <View style={styles.group}>
                 <View style={styles.spread}>
                   <ThemedText caption tone="muted">Repeat</ThemedText>
@@ -112,10 +114,12 @@ export function AlarmEditorSheet({ draft, onCancel, onSave, onDelete }: Props) {
 const styles = StyleSheet.create({
   scrim: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' },
   sheet: { width: '100%', maxWidth: 600, alignSelf: 'center', maxHeight: '94%', overflow: 'hidden' },
-  bar: { height: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 4, borderBottomWidth: 1 },
+  bar: { height: 56, flexShrink: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 4, borderBottomWidth: 1 },
   barButton: { minWidth: 72, minHeight: 44, paddingHorizontal: 12, justifyContent: 'center' },
   barRight: { alignItems: 'flex-end' },
   content: { padding: 16, paddingBottom: 32, gap: 32 },
+  picker: { padding: 16, flexShrink: 0 },
+  form: { flexShrink: 1, minHeight: 0 },
   group: { gap: 8 },
   spread: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   day: { flex: 1, maxWidth: 44, height: 44, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
