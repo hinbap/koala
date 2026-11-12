@@ -19,6 +19,7 @@ function Tool({ icon, label, onPress, active, disabled, a11y }: { icon: IconName
   return (
     <Pressable
       onPress={onPress}
+      disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={a11y ?? label}
       accessibilityState={{ selected: !!active, disabled: !!disabled }}

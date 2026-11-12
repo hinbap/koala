@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import { AppStoreProvider } from '@/state/AppStore';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 import { useAppFonts } from '@/theme/fonts';
+import { useAlarmSound } from '@/hooks/useAlarmSound';
 
 void SplashScreen.preventAutoHideAsync().catch(console.warn);
 
@@ -15,6 +16,7 @@ export const unstable_settings = { initialRouteName: 'index' };
 function AppNavigator() {
   const theme = useTheme();
   const base = theme.mode === 'dark' ? DarkTheme : DefaultTheme;
+  useAlarmSound();
 
   return (
     <NavigationThemeProvider value={{
@@ -24,7 +26,7 @@ function AppNavigator() {
       <StatusBar style={theme.mode === 'dark' ? 'light' : 'dark'} />
       <View style={[styles.root, { backgroundColor: theme.paper }]}>
         <View style={styles.app}>
-          <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: theme.paper }, animation: 'fade' }}>
+          <Stack screenOptions={{ headerShown: false, gestureEnabled: false, contentStyle: { backgroundColor: theme.paper }, animation: 'fade' }}>
             <Stack.Screen name="index" options={{ title: 'Alarms' }} />
             <Stack.Screen name="puzzle" options={{ title: 'Sudoku' }} />
             <Stack.Screen name="excuse" options={{ title: 'Excuses' }} />

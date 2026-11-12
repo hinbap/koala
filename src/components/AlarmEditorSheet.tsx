@@ -5,7 +5,9 @@ import { useTheme } from '../theme/ThemeProvider';
 import { Alarm, DAY_FULL, DAY_SHORT, describeDays, Level, LEVELS } from '../lib/alarms';
 import { ThemedText } from './ui/ThemedText';
 import { ChoiceGroup } from './ui/ChoiceGroup';
+import { Dropdown } from './ui/Dropdown';
 import { TimeWheel } from './TimeWheel';
+import { AlarmSoundId, SOUND_OPTIONS } from '../lib/sounds';
 
 export type AlarmDraft = Omit<Alarm, 'id'> & { id: number | null };
 
@@ -74,12 +76,12 @@ export function AlarmEditorSheet({ draft, onCancel, onSave, onDelete }: Props) {
                     style={[styles.input, { color: t.muted, fontFamily: t.def.body[400] }]}
                   />
                 </View>
-                <View style={[styles.field, { borderBottomColor: t.line }]}>
-                  <ThemedText>Sound</ThemedText>
-                  <View style={styles.inline}>
-                    <ThemedText tone="muted">Radar · preview</ThemedText>
-                  </View>
-                </View>
+                <Dropdown<AlarmSoundId>
+                  label="Sound"
+                  value={d.sound}
+                  options={SOUND_OPTIONS}
+                  onChange={(sound) => setD({ ...d, sound })}
+                />
               </View>
 
               <View style={styles.group}>
@@ -91,7 +93,7 @@ export function AlarmEditorSheet({ draft, onCancel, onSave, onDelete }: Props) {
                   options={LEVELS.map((l) => ({ value: l, label: l }))}
                 />
                 <ThemedText size={14} lineHeight={20} tone="muted">
-                  Try a sudoku to finish the demo. Alarm sound is not active.
+                  Solve the sudoku to silence the alarm.
                 </ThemedText>
               </View>
 
@@ -119,6 +121,5 @@ const styles = StyleSheet.create({
   day: { flex: 1, maxWidth: 44, height: 44, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   field: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16, borderBottomWidth: 1 },
   input: { flex: 1, textAlign: 'right', fontSize: 16 },
-  inline: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   deleteLink: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
 });

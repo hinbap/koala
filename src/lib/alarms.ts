@@ -1,3 +1,5 @@
+import type { AlarmSoundId } from './sounds';
+
 export type Level = 'Easy' | 'Medium' | 'Hard';
 export type Meridiem = 'AM' | 'PM';
 
@@ -10,6 +12,7 @@ export interface Alarm {
   /** Index 0 = Sunday … 6 = Saturday. All false = rings once. */
   days: boolean[];
   level: Level;
+  sound: AlarmSoundId;
   on: boolean;
 }
 
@@ -20,10 +23,10 @@ export const DAY_FULL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
 export const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 export const SAMPLE_ALARMS: Alarm[] = [
-  { id: 1, hour: 6, minute: 30, meridiem: 'AM', label: 'Gym', days: [false, true, false, true, false, true, false], level: 'Hard', on: true },
-  { id: 2, hour: 7, minute: 15, meridiem: 'AM', label: 'Work', days: [false, true, true, true, true, true, false], level: 'Medium', on: true },
-  { id: 3, hour: 9, minute: 0, meridiem: 'AM', label: 'Weekend', days: [true, false, false, false, false, false, true], level: 'Easy', on: false },
-  { id: 4, hour: 2, minute: 0, meridiem: 'PM', label: 'Nap', days: [false, false, false, false, false, false, false], level: 'Easy', on: false },
+  { id: 1, hour: 6, minute: 30, meridiem: 'AM', label: 'Gym', days: [false, true, false, true, false, true, false], level: 'Hard', sound: 'nuclear', on: true },
+  { id: 2, hour: 7, minute: 15, meridiem: 'AM', label: 'Work', days: [false, true, true, true, true, true, false], level: 'Medium', sound: 'nuclear', on: true },
+  { id: 3, hour: 9, minute: 0, meridiem: 'AM', label: 'Weekend', days: [true, false, false, false, false, false, true], level: 'Easy', sound: 'nuclear', on: false },
+  { id: 4, hour: 2, minute: 0, meridiem: 'PM', label: 'Nap', days: [false, false, false, false, false, false, false], level: 'Easy', sound: 'nuclear', on: false },
 ];
 
 export const pad2 = (n: number) => (n < 10 ? `0${n}` : String(n));

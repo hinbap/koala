@@ -6,11 +6,12 @@ import { useTheme, useThemeControls } from '../theme/ThemeProvider';
 import { Mode, THEME_ORDER, THEMES } from '../theme/themes';
 import { Settings, useStore } from '../state/AppStore';
 import { Level, LEVELS } from '../lib/alarms';
+import { AlarmSoundId, AlarmVolume, SOUND_OPTIONS, VOLUME_OPTIONS } from '../lib/sounds';
 import { ThemedText } from '../components/ui/ThemedText';
 import { ScreenHeader } from '../components/ui/ScreenHeader';
 import { ChoiceGroup } from '../components/ui/ChoiceGroup';
+import { Dropdown } from '../components/ui/Dropdown';
 import { Toggle } from '../components/ui/Toggle';
-import { Icon } from '../components/ui/Icon';
 import { ThemeCard } from '../components/ThemeCard';
 
 const BACK_LABEL: Record<string, string> = { puzzle: 'Puzzle', wakeups: 'Wake-ups', alarms: 'Alarms' };
@@ -105,7 +106,7 @@ export function SettingsScreen() {
         <Section title="Puzzle">
           <Row
             label="Default difficulty"
-            sub="Saved for new alarms. This demo uses one fixed puzzle."
+            sub="Used for new alarms. Each game generates a fresh puzzle at its selected difficulty."
             below={
               <ChoiceGroup<Level>
                 label="Default difficulty"
@@ -129,18 +130,27 @@ export function SettingsScreen() {
         </Section>
 
         <Section title="Wake-up">
-          <Row label="Preview settings" sub="Sound, vibration, volume control, and backup alarms are not active." />
+          <Row label="Preview settings" sub="Vibration and backup alarms are not active yet." />
           {toggleRow('volumeClimbsBack', 'Volume climbs back', 'If you stop solving for 30 seconds.')}
-          {toggleRow('overridePhoneVolume', 'Override phone volume', 'Ring at full volume, even on silent.')}
+          {toggleRow('overridePhoneVolume', 'Override phone volume', 'Ring even when the phone is on silent.')}
           {toggleRow('vibrate', 'Vibrate')}
           <Row
-            label="Default sound"
-            right={
-              <View style={styles.inline}>
-                <ThemedText tone="muted">Radar</ThemedText>
-                <Icon name="chevron-right" size={16} color={t.muted} strokeWidth={1.6} />
-              </View>
+            label="Alarm volume"
+            sub="Set here only. The ringing alarm cannot be turned up or down."
+            below={
+              <ChoiceGroup<AlarmVolume>
+                label="Alarm volume"
+                value={settings.alarmVolume}
+                onChange={(alarmVolume) => updateSettings({ alarmVolume })}
+                options={VOLUME_OPTIONS}
+              />
             }
+          />
+          <Dropdown<AlarmSoundId>
+            label="Default sound"
+            value={settings.defaultSound}
+            options={SOUND_OPTIONS}
+            onChange={(defaultSound) => updateSettings({ defaultSound })}
           />
         </Section>
 
@@ -170,5 +180,4 @@ const styles = StyleSheet.create({
   stepper: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   step: { width: 44, height: 44, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   stepValue: { minWidth: 32, textAlign: 'center' },
-  inline: { flexDirection: 'row', alignItems: 'center', gap: 4 },
 });
