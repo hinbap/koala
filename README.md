@@ -1,56 +1,61 @@
-# Welcome to your Expo app 👋
+# Koala — Sudoku Alarm
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Expo SDK 58 / React Native 0.88 application integrating the Sudoku Alarm design and gameplay. Koala retains its app identifiers (`com.salbap.koala`) and URL scheme (`koala`).
 
-## Get started
+## Run
 
-1. Install dependencies
+Use Node.js 24 LTS and npm.
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```sh
+npm install
+npm start
+npm run web
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+`react-native-svg` was added for the koala illustration, icons, and voice waves. Rebuild an existing development client before running the updated native app:
 
-### Other setup steps
+```sh
+npm run ios
+# or
+npm run android
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+These commands install native dependencies and build the app. If using existing generated native folders, run `npx expo prebuild` first to synchronize icon/splash configuration. No native source changes are part of this integration. For cloud builds, configure EAS and run `npx eas-cli@latest build --profile development --platform ios` (or `android`). The imported features also use modules bundled in Expo Go: `npx expo start --go`.
 
-## Learn more
+## Included
 
-To learn more about developing your project with Expo, look at the following resources:
+- Alarms: add, edit, delete, repeat days, time, difficulty, and enable/disable.
+- Playable Sudoku: notes, hints, undo, mistake highlighting, solve timer, and completion screen.
+- Five themes with light/dark variants, bundled fonts, animated koala, and reduced-motion support.
+- Wake-up calendar and voice excuse preview.
+- Expo Router routes at `/`, `/puzzle`, `/settings`, `/wakeups`, and `/excuse`. Shared providers above the navigator preserve puzzle state while visiting other screens. Direct links to the puzzle start a session.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Current limitations
 
-## Join the community
+This imports the supplied prototype; it is **not a functioning background alarm clock**. Alarms, settings, and appearance are stored in memory and reset on restart. Scheduled notifications, alarm audio, volume controls, vibration, backup ringing, microphone capture, and an AI voice service are not implemented. Wake-up history uses sample data. Difficulty is saved on alarms, but all sessions currently use one fixed puzzle.
 
-Join our community of developers creating universal apps.
+The in-app lock setting blocks leaving an unfinished puzzle through navigation; it cannot prevent closing the application. Disable it in Settings to leave a practice session before solving.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Checks
+
+```sh
+npm run lint
+npm run typecheck
+npm test
+npx expo-doctor
+npx expo export --platform all
+```
+
+Regression tests cover a unique Sudoku solution, notes/entries/erase/undo, hint bookkeeping, completion, AM/PM conversion, repeat-day selection, disabled alarms, and daylight-saving countdowns. Native device interaction, gestures, and rendering still need a device smoke test.
+
+`npm audit` currently reports eight moderate dependency findings stemming from `minimatch` in Expo fingerprinting and ESLint tooling. A non-breaking `npm audit fix` did not resolve them. The suggested forced fix would downgrade Expo to SDK 52, so it was not applied.
+
+## Source layout
+
+- `src/app/`: route exports and root navigator.
+- `src/screens/`: five screen implementations.
+- `src/components/`: alarm editor, Sudoku controls, themed UI, and illustrations.
+- `src/state/`: shared alarm, settings, and puzzle state.
+- `src/theme/`: theme definitions and bundled font loading.
+- `src/lib/`: pure Sudoku, alarm-time, color, and sample-history logic.
+- `tests/`: Node test runner regression tests.
