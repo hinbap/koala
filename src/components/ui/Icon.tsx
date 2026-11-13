@@ -3,7 +3,7 @@ import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
 export type IconName =
   | 'plus' | 'gear' | 'grid' | 'chevron-left' | 'chevron-right' | 'sun' | 'moon'
-  | 'undo' | 'eraser' | 'pencil' | 'bulb' | 'check' | 'stop' | 'mic' | 'sudoku';
+  | 'arrow-right' | 'undo' | 'eraser' | 'pencil' | 'bulb' | 'check' | 'stop' | 'mic' | 'sudoku';
 
 interface Props {
   name: IconName;
@@ -24,6 +24,7 @@ export function Icon({ name, size = 22, color, strokeWidth = 1.5 }: Props) {
     case 'gear': body = <><Circle cx={12} cy={12} r={3} {...s} /><Path d={GEAR} {...s} /></>; break;
     case 'grid': body = <><Rect x={3} y={3} width={7} height={7} rx={1} {...s} /><Rect x={14} y={3} width={7} height={7} rx={1} {...s} /><Rect x={3} y={14} width={7} height={7} rx={1} {...s} /><Rect x={14} y={14} width={7} height={7} rx={1} {...s} /></>; break;
     case 'chevron-left': body = <Path d="M15 18l-6-6 6-6" {...s} />; break;
+    case 'arrow-right': body = <Path d="M5 12h14M13 6l6 6-6 6" {...s} />; break;
     case 'chevron-right': body = <Path d="M9 18l6-6-6-6" {...s} />; break;
     case 'sun': body = <><Circle cx={12} cy={12} r={4} {...s} /><Path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" {...s} /></>; break;
     case 'moon': body = <Path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" {...s} />; break;

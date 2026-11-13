@@ -1,4 +1,4 @@
-export type ThemeId = 'dusk' | 'koala' | 'industrial' | 'claude' | 'eink';
+export type ThemeId = 'veriel' | 'dusk' | 'koala' | 'industrial' | 'claude' | 'eink';
 export type Mode = 'light' | 'dark';
 
 export interface Palette {
@@ -28,6 +28,9 @@ export interface ThemeDef {
   body: Record<BodyWeight, string>;
   /** Default weight for display text (headings, times, digits). */
   displayWeight: DisplayWeight;
+  caption?: string;
+  heroSize?: number;
+  heroWeight?: DisplayWeight;
   radius: number;
   radiusSmall: number;
   /** Width of the 3×3 box lines on the sudoku board. */
@@ -40,6 +43,23 @@ export interface ThemeDef {
 }
 
 export const THEMES: Record<ThemeId, ThemeDef> = {
+  veriel: {
+    id: 'veriel',
+    name: 'Veriel',
+    display: { 300: 'BricolageGrotesque_400Regular', 400: 'BricolageGrotesque_700Bold', 500: 'BricolageGrotesque_800ExtraBold' },
+    body: { 400: 'BricolageGrotesque_400Regular', 500: 'BricolageGrotesque_500Medium', 600: 'BricolageGrotesque_600SemiBold' },
+    displayWeight: 400,
+    caption: 'IBMPlexMono_500Medium',
+    heroSize: 64,
+    heroWeight: 500,
+    radius: 12,
+    radiusSmall: 6,
+    boxLineWidth: 1,
+    outlinedKeys: false,
+    swatches: ['#0a0c0b', '#121513', '#272c28', '#949b95', '#e9ede8', '#5bd684'],
+    dark: { paper: '#0a0c0b', surface: '#121513', surfaceHi: '#e9ede8', line: '#272c28', thin: '#1a1e1b', thick: '#434a45', ink: '#e9ede8', muted: '#949b95', fur: '#434a45', accent: '#5bd684', soft: '#10271a', onAccent: '#07130c', alarm: '#fbbf24' },
+    light: { paper: '#f1f3ee', surface: '#ffffff', surfaceHi: '#ffffff', line: '#d0d6cd', thin: '#e4e8e1', thick: '#9fa89f', ink: '#101311', muted: '#566058', fur: '#9fa89f', accent: '#137a3f', soft: '#dff5e6', onAccent: '#ffffff', alarm: '#a16207' },
+  },
   dusk: {
     id: 'dusk',
     name: 'Dusk',
@@ -112,7 +132,7 @@ export const THEMES: Record<ThemeId, ThemeDef> = {
   },
 };
 
-export const THEME_ORDER: ThemeId[] = ['dusk', 'koala', 'industrial', 'claude', 'eink'];
+export const THEME_ORDER: ThemeId[] = ['veriel', 'dusk', 'koala', 'industrial', 'claude', 'eink'];
 
 /** Monospace face used for the "Excuses excuses..." link regardless of theme. */
 export const MONO_FONT = 'IBMPlexMono_400Regular';

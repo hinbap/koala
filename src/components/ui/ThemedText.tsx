@@ -26,7 +26,7 @@ export function ThemedText({ face = 'body', weight, size = 16, lineHeight, tone 
     fontFamily = t.def.display[w] ?? t.def.display[400];
   } else {
     const w = (weight ?? (caption ? 500 : 400)) as BodyWeight;
-    fontFamily = t.def.body[w] ?? t.def.body[400];
+    fontFamily = caption && t.def.caption ? t.def.caption : (t.def.body[w] ?? t.def.body[400]);
   }
   const base: TextStyle = {
     fontFamily,

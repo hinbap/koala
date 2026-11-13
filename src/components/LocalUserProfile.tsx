@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { useAuth } from '../state/AuthProvider';
+import { useStore } from '../state/AppStore';
 import { useTheme } from '../theme/ThemeProvider';
 import { UserProfile, UserProfileCard } from './UserProfileCard';
 import { ThemedText } from './ui/ThemedText';
@@ -15,7 +17,7 @@ function restoreProfile(raw: string | null): LocalProfileState {
   const value = JSON.parse(raw) as Partial<LocalProfileState>;
   const saved = value?.profile;
   return {
-    active: value?.active !== false,
+    active: true,
     profile: {
       nickname: typeof saved?.nickname === 'string' ? saved.nickname.slice(0, 30) : '',
       displayName: typeof saved?.displayName === 'string' ? saved.displayName.slice(0, 60) : '',
@@ -26,6 +28,8 @@ function restoreProfile(raw: string | null): LocalProfileState {
 
 export function LocalUserProfile() {
   const t = useTheme();
+  const { signOut, email } = useAuth();
+  const { alarmActive } = useStore();
   const [state, setState] = useState(INITIAL_STATE);
   const current = useRef(state);
   const [ready, setReady] = useState(false);
@@ -80,16 +84,17 @@ export function LocalUserProfile() {
       {state.active ? <>
         <UserProfileCard
           profile={state.profile}
-          loading={busy}
+          loading={busy || alarmActive}
           onAvatarChange={avatarUri => save(s => ({ ...s, profile: { ...s.profile, avatarUri } }))}
           onLogout={async () => {
-            await save(s => ({ ...s, active: false }));
+            if (alarmActive) throw new Error('Solve the ringing puzzle before signing out.');
+            await signOut();
             setEditing(false);
             setError(null);
           }}
         />
         {!editing && <View style={styles.actions}>
-          <ThemedText size={12} tone="muted" style={styles.hint}>Local profile · saved on this device</ThemedText>
+          <ThemedText size={12} tone="muted" style={styles.hint}>{email ? `${email} · profile saved on this device` : 'Guest profile · saved on this device'}</ThemedText>
           <Pressable accessibilityRole="button" onPress={() => {
             setDisplayName(state.profile.displayName);
             setNickname(state.profile.nickname);

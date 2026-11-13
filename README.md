@@ -62,3 +62,23 @@ Regression tests independently solve 20 generated puzzles per difficulty, check 
 - `src/theme/`: theme definitions and bundled font loading.
 - `src/lib/`: pure Sudoku, alarm-time, color, and sample-history logic.
 - `tests/`: Node test runner regression tests.
+
+## Welcome and account access
+
+First launch shows four illustrated introduction pages, followed by sign-in. Skip,
+Next, Back, page indicators, and horizontal swipes navigate the introduction.
+Completion and guest access persist on the device. Settings → Log out returns to
+sign-in without replaying the introduction or deleting local alarms and profile data.
+A ringing alarm remains accessible even when the user is signed out.
+
+Email/password sign-in, account creation, and password reset use Firebase Auth.
+Copy `.env.example` to `.env.local` and fill in the Firebase web-app configuration
+from your Firebase project. Enable **Authentication → Sign-in method → Email/Password**
+in Firebase Console, then restart Expo. Do not put service-account credentials in
+`EXPO_PUBLIC_` variables. Without this configuration, account actions are disabled
+and **Continue as guest** remains available. Authentication does not sync alarms,
+profiles, or history; these features retain their existing device-local behavior.
+
+The Veriel theme adds green-accented light/dark palettes, Bricolage Grotesque display
+and body type, and IBM Plex Mono captions. Select it under Settings → Appearance.
+New installations start with Veriel; existing theme preferences are preserved.

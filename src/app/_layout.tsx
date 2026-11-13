@@ -4,7 +4,9 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider as NavigationThemeProvide
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 
-import { AppStoreProvider } from '@/state/AppStore';
+import { routeAccess } from '@/lib/auth';
+import { AuthProvider, useAuth } from '@/state/AuthProvider';
+import { AppStoreProvider, useStore } from '@/state/AppStore';
 import { AlarmNotificationsProvider } from '@/state/AlarmNotifications';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
 import { useAppFonts } from '@/theme/fonts';
@@ -24,8 +26,13 @@ function AlarmSound() {
 
 function AppNavigator() {
   const theme = useTheme();
+  const auth = useAuth();
+  const { ringing } = useStore();
+  const access = routeAccess(auth.welcomeCompleted, auth.hasAccess, !!ringing);
   const base = theme.mode === 'dark' ? DarkTheme : DefaultTheme;
   const mounted = useSyncExternalStore(noSubscribe, () => true, () => false);
+
+  if (!auth.ready) return null;
 
   return (
     <NavigationThemeProvider value={{
@@ -37,11 +44,21 @@ function AppNavigator() {
       <View style={[styles.root, { backgroundColor: theme.paper }]}>
         <View style={styles.app}>
           <Stack screenOptions={{ headerShown: false, gestureEnabled: false, contentStyle: { backgroundColor: theme.paper }, animation: 'fade' }}>
-            <Stack.Screen name="index" options={{ title: 'Alarms' }} />
-            <Stack.Screen name="puzzle" options={{ title: 'Sudoku' }} />
-            <Stack.Screen name="excuse" options={{ title: 'Excuses' }} />
-            <Stack.Screen name="settings" options={{ title: 'Settings' }} />
-            <Stack.Screen name="wakeups" options={{ title: 'Wake-ups' }} />
+            <Stack.Protected guard={access.welcome}>
+              <Stack.Screen name="welcome" options={{ title: 'Welcome' }} />
+            </Stack.Protected>
+            <Stack.Protected guard={access.signIn}>
+              <Stack.Screen name="sign-in" options={{ title: 'Sign in' }} />
+            </Stack.Protected>
+            <Stack.Protected guard={access.app}>
+              <Stack.Screen name="index" options={{ title: 'Alarms' }} />
+              <Stack.Screen name="settings" options={{ title: 'Settings' }} />
+              <Stack.Screen name="wakeups" options={{ title: 'Wake-ups' }} />
+            </Stack.Protected>
+            <Stack.Protected guard={access.puzzle}>
+              <Stack.Screen name="puzzle" options={{ title: 'Sudoku' }} />
+              <Stack.Screen name="excuse" options={{ title: 'Excuses' }} />
+            </Stack.Protected>
           </Stack>
         </View>
       </View>
@@ -60,11 +77,13 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <AppStoreProvider>
-        <AlarmNotificationsProvider>
-          <AppNavigator />
-        </AlarmNotificationsProvider>
-      </AppStoreProvider>
+      <AuthProvider>
+        <AppStoreProvider>
+          <AlarmNotificationsProvider>
+            <AppNavigator />
+          </AlarmNotificationsProvider>
+        </AppStoreProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

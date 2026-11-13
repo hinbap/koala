@@ -56,7 +56,7 @@ export function AlarmsScreen() {
 					{next ? (
 						<>
 							<View style={styles.heroTime}>
-								<ThemedText face="display" weight={t.def.displayWeight === 500 ? 400 : 300} size={64} lineHeight={76} style={{ letterSpacing: -1.5, flexShrink: 1 }} numberOfLines={1} adjustsFontSizeToFit>
+								<ThemedText face="display" weight={t.def.heroWeight ?? (t.def.displayWeight === 500 ? 400 : 300)} size={t.def.heroSize ?? 64} lineHeight={76} style={{ letterSpacing: -1.5, flexShrink: 1 }} numberOfLines={1} adjustsFontSizeToFit>
 									{formatTime(next.alarm)}
 								</ThemedText>
 								<ThemedText tone="muted">{next.alarm.meridiem}</ThemedText>

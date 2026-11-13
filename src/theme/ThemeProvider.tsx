@@ -16,10 +16,10 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const { value: appearance, setValue: setAppearance, ready, error } = usePersistentState<{ themeId: ThemeId; mode: Mode }>(
-    'koala.appearance.v1', { themeId: 'dusk' as ThemeId, mode: 'dark' as Mode },
+    'koala.appearance.v1', { themeId: 'veriel' as ThemeId, mode: 'dark' as Mode },
     data => {
       const saved = data as { themeId?: ThemeId; mode?: Mode } | null;
-      return { themeId: saved?.themeId && THEME_ORDER.includes(saved.themeId) ? saved.themeId : 'dusk', mode: saved?.mode === 'light' ? 'light' : 'dark' };
+      return { themeId: saved?.themeId && THEME_ORDER.includes(saved.themeId) ? saved.themeId : 'veriel', mode: saved?.mode === 'light' ? 'light' : 'dark' };
     },
   );
   const { themeId, mode } = appearance;

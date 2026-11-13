@@ -1,3 +1,8 @@
+import { BricolageGrotesque_400Regular } from '@expo-google-fonts/bricolage-grotesque/400Regular';
+import { BricolageGrotesque_500Medium } from '@expo-google-fonts/bricolage-grotesque/500Medium';
+import { BricolageGrotesque_600SemiBold } from '@expo-google-fonts/bricolage-grotesque/600SemiBold';
+import { BricolageGrotesque_700Bold } from '@expo-google-fonts/bricolage-grotesque/700Bold';
+import { BricolageGrotesque_800ExtraBold } from '@expo-google-fonts/bricolage-grotesque/800ExtraBold';
 import { useFonts } from 'expo-font';
 import { Fraunces_300Light } from '@expo-google-fonts/fraunces/300Light';
 import { Fraunces_400Regular } from '@expo-google-fonts/fraunces/400Regular';
@@ -25,9 +30,14 @@ import { Literata_400Regular } from '@expo-google-fonts/literata/400Regular';
 import { Literata_500Medium } from '@expo-google-fonts/literata/500Medium';
 import { Literata_600SemiBold } from '@expo-google-fonts/literata/600SemiBold';
 
-/** Loads every face used by the five themes. Returns true once ready. */
+/** Loads every face used by the six themes. Returns true once ready. */
 export function useAppFonts(): boolean {
   const [loaded, error] = useFonts({
+    BricolageGrotesque_400Regular,
+    BricolageGrotesque_500Medium,
+    BricolageGrotesque_600SemiBold,
+    BricolageGrotesque_700Bold,
+    BricolageGrotesque_800ExtraBold,
     Fraunces_300Light,
     Fraunces_400Regular,
     Fraunces_500Medium,
